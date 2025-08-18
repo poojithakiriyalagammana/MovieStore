@@ -10,6 +10,19 @@ import {
 import { setAlert } from './alert';
 import { setAuthHeaders, setUser, removeUser, isLoggedIn } from '../../utils';
 
+const persistAuth = (dispatch, responseData, successType) => {
+  const { user, token } = responseData;
+  if (user) {
+    setUser(user);
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+  if (token) {
+    localStorage.setItem('jwtToken', token);
+  }
+  dispatch({ type: successType, payload: responseData });
+  dispatch({ type: USER_LOADED, payload: responseData });
+};
+
 export const uploadImage = (id, image) => async dispatch => {
   try {
     const data = new FormData();
@@ -42,10 +55,8 @@ export const login = (username, password) => async dispatch => {
     });
     const responseData = await response.json();
     if (response.ok) {
-      const { user } = responseData;
-      user && setUser(user);
-      dispatch({ type: LOGIN_SUCCESS, payload: responseData });
-      dispatch(setAlert(`Welcome ${user.name}`, 'success', 5000));
+      persistAuth(dispatch, responseData, LOGIN_SUCCESS);
+      dispatch(setAlert(`Welcome ${responseData.user.name}`, 'success', 5000));
     }
     if (responseData.error) {
       dispatch({ type: LOGIN_FAIL });
@@ -70,10 +81,8 @@ export const facebookLogin = e => async dispatch => {
     const responseData = await response.json();
 
     if (response.ok) {
-      const { user } = responseData;
-      user && setUser(user);
-      dispatch({ type: LOGIN_SUCCESS, payload: responseData });
-      dispatch(setAlert(`Welcome ${user.name}`, 'success', 5000));
+      persistAuth(dispatch, responseData, LOGIN_SUCCESS);
+      dispatch(setAlert(`Welcome ${responseData.user.name}`, 'success', 5000));
     }
     if (responseData.error) {
       dispatch({ type: LOGIN_FAIL });
@@ -98,10 +107,8 @@ export const googleLogin = ({ profileObj }) => async dispatch => {
     const responseData = await response.json();
 
     if (response.ok) {
-      const { user } = responseData;
-      user && setUser(user);
-      dispatch({ type: LOGIN_SUCCESS, payload: responseData });
-      dispatch(setAlert(`Welcome ${user.name}`, 'success', 5000));
+      persistAuth(dispatch, responseData, LOGIN_SUCCESS);
+      dispatch(setAlert(`Welcome ${responseData.user.name}`, 'success', 5000));
     }
     if (responseData.error) {
       dispatch({ type: LOGIN_FAIL });
@@ -114,14 +121,7 @@ export const googleLogin = ({ profileObj }) => async dispatch => {
 };
 
 // Register user
-export const register = ({
-  name,
-  username,
-  email,
-  phone,
-  image,
-  password
-}) => async dispatch => {
+export const register = ({ name, username, email, phone, image, password }) => async dispatch => {
   try {
     const url = '/users';
     const body = { name, username, email, phone, password };
@@ -132,10 +132,8 @@ export const register = ({
     });
     const responseData = await response.json();
     if (response.ok) {
-      const { user } = responseData;
-      user && setUser(user);
-      if (image) dispatch(uploadImage(user._id, image)); // Upload image
-      dispatch({ type: REGISTER_SUCCESS, payload: responseData });
+      persistAuth(dispatch, responseData, REGISTER_SUCCESS);
+      if (image) dispatch(uploadImage(responseData.user._id, image));
       dispatch(setAlert('Register Success', 'success', 5000));
     }
     if (responseData._message) {
@@ -159,9 +157,7 @@ export const loadUser = () => async dispatch => {
     });
     const responseData = await response.json();
     if (response.ok) {
-      const { user } = responseData;
-      user && setUser(user);
-      dispatch({ type: USER_LOADED, payload: responseData });
+      persistAuth(dispatch, responseData, USER_LOADED);
     }
     if (!response.ok) dispatch({ type: AUTH_ERROR });
   } catch (error) {
@@ -184,6 +180,8 @@ export const logout = () => async dispatch => {
     const responseData = await response.json();
     if (response.ok) {
       removeUser();
+      localStorage.removeItem('jwtToken');
+      localStorage.removeItem('user');
       dispatch({ type: LOGOUT });
       dispatch(setAlert('LOGOUT Success', 'success', 5000));
     }

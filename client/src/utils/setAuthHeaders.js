@@ -1,10 +1,8 @@
 const setAuthHeaders = headersObject => {
   let headers = { ...headersObject };
-  if (localStorage.jwtToken) {
-    headers = {
-      ...headers,
-      Authorization: `Bearer ${localStorage.jwtToken}`
-    };
+  const token = localStorage.getItem('jwtToken');
+  if (token) {
+    headers = { ...headers, Authorization: `Bearer ${token}` };
   }
   return headers;
 };
