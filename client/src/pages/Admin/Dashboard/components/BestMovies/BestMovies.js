@@ -51,6 +51,13 @@ const BestMovies = ({ className, bestMovies }) => {
     ]
   };
 
+  const handleOverview = () => {
+    history.push({
+      pathname: '/admin/movies/overview',
+      state: { limit }
+    });
+  };
+
   return (
     <Card className={classnames(classes.root, className)}>
       <CardHeader
@@ -80,12 +87,7 @@ const BestMovies = ({ className, bestMovies }) => {
       </CardContent>
       <Divider />
       <CardActions className={classes.actions}>
-        <Button
-          color="primary"
-          size="small"
-          variant="text"
-          onClick={() => history.push('/admin/movies/overview')}
-        >
+        <Button color="primary" size="small" variant="text" onClick={handleOverview}>
           Overview <ArrowRightIcon />
         </Button>
       </CardActions>
