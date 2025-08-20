@@ -4,7 +4,6 @@ import Loading from './components/Loading';
 import { ProtectedRoute, WithLayoutRoute } from './routers';
 import { AdminLayout, PublicLayout } from './layouts';
 
-// Admin
 const DashboardPage = lazy(() => import('./pages/Admin/Dashboard'));
 const MovieList = lazy(() => import('./pages/Admin/MovieList'));
 const CinemaList = lazy(() => import('./pages/Admin/CinemaList'));
@@ -14,11 +13,9 @@ const User = lazy(() => import('./pages/Admin/User'));
 const Account = lazy(() => import('./pages/Admin/Account'));
 const MovieOverview = lazy(() => import('./pages/Admin/MovieOverview'));
 
-// Register - Login
 const Register = lazy(() => import('./pages/Public/Register'));
 const Login = lazy(() => import('./pages/Public/Login'));
 
-// Public
 const HomePage = lazy(() => import('./pages/Public/HomePage'));
 const MoviePage = lazy(() => import('./pages/Public/MoviePage'));
 const MyDashboard = lazy(() => import('./pages/Public/MyDashboard'));
@@ -32,6 +29,7 @@ const Routes = () => {
     <Suspense fallback={<Loading />}>
       <Router>
         <Switch>
+          {/* Public Routes */}
           <Route exact path="/login" component={Login} />
           <Route exact path="/register" component={Register} />
 
@@ -41,17 +39,27 @@ const Routes = () => {
           <WithLayoutRoute exact path="/movie/category/:category" layout={PublicLayout} component={MovieCategoryPage} />
           <WithLayoutRoute exact path="/movie/:id" layout={PublicLayout} layoutProps={{ withFooter: false }} component={MoviePage} />
           <WithLayoutRoute exact path="/movie/booking/:id" layout={PublicLayout} layoutProps={{ withFooter: false }} component={BookingPage} />
-          <WithLayoutRoute exact path="/checkin/:reservationId" component={Checkin} layout={PublicLayout} />
+          <WithLayoutRoute exact path="/checkin/:reservationId" layout={PublicLayout} component={Checkin} />
 
+          {/* Admin Routes */}
           <ProtectedRoute exact path="/admin/dashboard" layout={AdminLayout} component={DashboardPage} />
           <ProtectedRoute exact path="/admin/users" layout={AdminLayout} component={User} />
           <ProtectedRoute exact path="/admin/showtimes" layout={AdminLayout} component={ShowtimeList} />
           <ProtectedRoute exact path="/admin/reservations" layout={AdminLayout} component={ReservationList} />
           <ProtectedRoute exact path="/admin/cinemas" layout={AdminLayout} component={CinemaList} />
           <ProtectedRoute exact path="/admin/movies" layout={AdminLayout} component={MovieList} />
-          <ProtectedRoute exact path="/admin/movies/overview" layout={AdminLayout} component={MovieOverview} />
+          
+          {/* Updated Overview route for all best movies */}
+          <ProtectedRoute
+            exact
+            path="/admin/movies/overview"
+            layout={AdminLayout}
+            component={MovieOverview}
+          />
+
           <ProtectedRoute exact path="/admin/account" layout={AdminLayout} component={Account} />
 
+          {/* Catch-all 404 */}
           <Route path="*" component={() => '404 NOT FOUND'} />
         </Switch>
       </Router>
