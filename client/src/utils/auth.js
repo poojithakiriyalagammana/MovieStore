@@ -8,6 +8,5 @@ export const setUser = user =>
   window.localStorage.setItem('user', JSON.stringify(user));
 export const removeUser = () => window.localStorage.removeItem('user');
 export const isLoggedIn = () => {
-  const user = getUser();
-  return !!user.username;
+  return !!localStorage.getItem('jwtToken');
 };

@@ -62,11 +62,45 @@ function MovieCard(props) {
   const images ={eternals:'https://phantom-marca.unidadeditorial.es/927e619e34b67b9e7326c9266914e6f0/crop/68x0/1311x700/resize/1320/f/jpg/assets/multimedia/imagenes/2021/08/20/16294695683527.jpg','spider man-no way home':'https://images.indianexpress.com/2021/11/spider-man-no-way-home-new-poster-1200.jpg','avengers-infinity war':'https://pyxis.nymag.com/v1/imgs/8b3/ac6/ca28ec3072fdc00a5b59a72a75a39ab61b-20-avengers-lede.rsquare.w700.jpg','doctor strange-multiverse of madness':'https://m.media-amazon.com/images/I/818x-d2qUuL.jpg','wakanda forever':'https://thumbor.forbes.com/thumbor/fit-in/1200x0/filters%3Aformat%28jpg%29/https%3A%2F%2Fblogs-images.forbes.com%2Fscottmendelson%2Ffiles%2F2017%2F10%2FDMQuyI5V4AAUHP0.jpg'};
 
 
+  
+  const getMovieImage = (movie) => {
+    console.log('Movie object:', movie);
+    console.log('Movie image field:', movie.image);
+    
+    
+    if (movie.image) {
+
+      let cleanImagePath = movie.image.replace(/\\/g, '/');
+      console.log('Generated image URL:', cleanImagePath);
+      return cleanImagePath;
+    }
+
+    // Check for fallback image by title
+    if (movie.title && images[movie.title.toLowerCase()]) {
+      console.log('Using image for:', movie.title);
+      return images[movie.title.toLowerCase()];
+    }
+    
+    console.log('Using placeholder image');
+    // Default placeholder image
+    return 'https://via.placeholder.com/400x200?text=No+Image+Available';
+  };
+
+  
+  const handleImageError = (event) => {
+    const fallbackUrl = images[movie.title?.toLowerCase()];
+    if (fallbackUrl && event.target.src !== fallbackUrl) {
+      event.target.src = fallbackUrl;
+    } else {
+      event.target.src = 'https://via.placeholder.com/400x200?text=Image+Not+Found';
+    }
+  };
   const rootClassName = classNames(classes.root, className);
+
   return (
     <Paper className={rootClassName}>
       <div className={classes.imageWrapper}>
-        <img alt="movie" className={classes.image} src={images[movie.title]} />
+        <img alt="movie" className={classes.image} src={getMovieImage(movie)} onError={handleImageError} />
       </div>
       <div className={classes.details}>
         <Typography className={classes.title} variant="h4">

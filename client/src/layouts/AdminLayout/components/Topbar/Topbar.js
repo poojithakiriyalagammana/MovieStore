@@ -4,31 +4,35 @@ import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import { logout } from '../../../../store/actions';
 import { withStyles } from '@material-ui/core/styles';
-import { Badge, Toolbar, IconButton } from '@material-ui/core';
+import {
+  Badge,
+  Toolbar,
+  IconButton,
+  Popover,
+  List,
+  ListItem,
+  ListItemText
+} from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import CloseIcon from '@material-ui/icons/Close';
 import NotificationsIcon from '@material-ui/icons/NotificationsOutlined';
 import InputIcon from '@material-ui/icons/Input';
 
-// Component styles
 import styles from './styles';
 
 class Topbar extends Component {
-  static defaultProps = {
-    title: 'Dashboard',
-    isSidebarOpen: false
-  };
-  static propTypes = {
-    children: PropTypes.node,
-    classes: PropTypes.object.isRequired,
-    isSidebarOpen: PropTypes.bool,
-    title: PropTypes.string,
-    logout: PropTypes.func.isRequired,
-    auth: PropTypes.object.isRequired
+  state = { anchorEl: null };
+
+  handleSignOut = () => {
+    this.props.logout();
   };
 
-  handleSignOut = async () => {
-    this.props.logout();
+  handleNotificationClick = event => {
+    this.setState({ anchorEl: event.currentTarget });
+  };
+
+  handleClose = () => {
+    this.setState({ anchorEl: null });
   };
 
   render() {
@@ -39,6 +43,10 @@ class Topbar extends Component {
       isSidebarOpen,
       onToggleSidebar
     } = this.props;
+    const { anchorEl } = this.state;
+
+    const open = Boolean(anchorEl);
+
     return (
       <div className={`${classes.root} , ${ToolbarClasses}`}>
         <Toolbar className={classes.toolbar}>
@@ -53,16 +61,35 @@ class Topbar extends Component {
           </div>
 
           <NavLink className={classes.title} to="/">
-            Movie Store ->
+            Movie Store -
           </NavLink>
 
           <IconButton
             className={classes.notificationsButton}
-            onClick={() => console.log('Notification')}>
+            onClick={this.handleNotificationClick}>
             <Badge badgeContent={4} color="primary" variant="dot">
               <NotificationsIcon />
             </Badge>
           </IconButton>
+          <Popover
+            open={open}
+            anchorEl={anchorEl}
+            onClose={this.handleClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'center' }}>
+            <List>
+              <ListItem>
+                <ListItemText primary="New movie added!" />
+              </ListItem>
+              <ListItem>
+                <ListItemText primary="3 new reservations today" />
+              </ListItem>
+              <ListItem>
+                <ListItemText primary="Server update scheduled" />
+              </ListItem>
+            </List>
+          </Popover>
+
           <IconButton
             className={classes.signOutButton}
             onClick={this.handleSignOut}>
@@ -74,6 +101,11 @@ class Topbar extends Component {
     );
   }
 }
+
+Topbar.propTypes = {
+  classes: PropTypes.object.isRequired
+};
+
 const mapStateToProps = state => ({
   auth: state.authState
 });
